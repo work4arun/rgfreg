@@ -1,65 +1,173 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import { useState, useTransition } from "react";
+import { submitRegistration } from "./actions";
+import { Loader2 } from "lucide-react";
+
+export default function RegistrationPage() {
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const handleAction = (formData: FormData) => {
+    setError(null);
+    startTransition(async () => {
+      const result = await submitRegistration(formData);
+      if (result?.error) {
+        setError(result.error);
+      }
+    });
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      <div className="max-w-xl w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-center">
+          <h1 className="text-3xl font-extrabold text-white mb-2 tracking-tight">
+            Rathinam Grand Fest
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-blue-100 font-medium tracking-wide">
+            Participant Registration Portal
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="p-8">
+          {error && (
+            <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border border-red-100 font-medium">
+              {error}
+            </div>
+          )}
+
+          <form action={handleAction} className="space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700" htmlFor="name">Full Name</label>
+                <input
+                  required
+                  type="text"
+                  id="name"
+                  name="name"
+                  className="w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow bg-slate-50 focus:bg-white"
+                  placeholder="John Doe"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700" htmlFor="phone">Contact Number</label>
+                <input
+                  required
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  pattern="[0-9]{10}"
+                  className="w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow bg-slate-50 focus:bg-white"
+                  placeholder="10-digit mobile number"
+                  title="Please enter a valid 10-digit number"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-700" htmlFor="email">Email Address</label>
+              <input
+                required
+                type="email"
+                id="email"
+                name="email"
+                className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow bg-slate-50 focus:bg-white"
+                placeholder="john@example.com"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-700" htmlFor="college">College / University Name</label>
+              <input
+                required
+                type="text"
+                id="college"
+                name="college"
+                className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow bg-slate-50 focus:bg-white"
+                placeholder="Name of your institution"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700" htmlFor="department">Department</label>
+                <input
+                  required
+                  type="text"
+                  id="department"
+                  name="department"
+                  className="w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow bg-slate-50 focus:bg-white"
+                  placeholder="e.g. Computer Science"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700" htmlFor="rollNo">College Roll No</label>
+                <input
+                  required
+                  type="text"
+                  id="rollNo"
+                  name="rollNo"
+                  className="w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow bg-slate-50 focus:bg-white"
+                  placeholder="Your registration number"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-700" htmlFor="eventType">Event Category</label>
+              <select
+                required
+                id="eventType"
+                name="eventType"
+                className="w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow bg-slate-50 focus:bg-white appearance-none"
+              >
+                <option value="">Select Event Category...</option>
+                <option value="Technical Event">Technical Event</option>
+                <option value="Workshop">Workshop</option>
+                <option value="Sports">Sports</option>
+                <option value="Hackathon">Hackathon</option>
+                <option value="Championship">Championship</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-700" htmlFor="eventName">Name of the Event</label>
+              <input
+                required
+                type="text"
+                id="eventName"
+                name="eventName"
+                className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow bg-slate-50 focus:bg-white"
+                placeholder="e.g. CodeSprint 2026"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isPending}
+              className="w-full flex items-center justify-center py-4 px-4 border border-transparent rounded-lg shadow-sm text-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70 transition-all mt-6"
+            >
+              {isPending ? (
+                <>
+                  <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                  Submitting Application...
+                </>
+              ) : (
+                "Complete Registration"
+              )}
+            </button>
+          </form>
         </div>
-      </main>
+
+        <div className="bg-slate-50 p-6 text-center border-t border-slate-100">
+          <p className="text-slate-500 text-sm">
+            For any queries, please contact the fest support desk.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

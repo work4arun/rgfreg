@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String @id @default(uuid())
+  username String @unique
+  password String
+  role     String // "ADMIN" or "COUNTER"
+}
+
+model Participant {
+  id              String   @id @default(uuid())
+  registerNumber  String   @unique
+  name            String
+  college         String
+  phone           String   @unique
+  email           String
+  department      String
+  rollNo          String
+  eventType       String   // Technical Event, Workshop, Sports, Hackathon, Championship
+  eventName       String
+  paymentStatus   String   @default("UNPAID")
+  paymentType     String?  // Already Paid, Spot Digital Pay, Spot Cash
+  amount          Int      @default(0)
+  receiptNo       String?
+  attended        Boolean  @default(false)
+  counterUsername String?  // To track which counter collected the payment
+  createdAt       DateTime @default(now())
+}
