@@ -183,3 +183,14 @@ export async function resetPassword(formData: FormData) {
         return { error: "Failed to reset password" };
     }
 }
+
+export async function deleteParticipant(id: string) {
+    await checkAdmin();
+    try {
+        await prisma.participant.delete({ where: { id } });
+        revalidatePath("/admin");
+        return { success: true };
+    } catch (err) {
+        return { error: "Failed to delete participant" };
+    }
+}

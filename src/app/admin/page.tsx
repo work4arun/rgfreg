@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getDashboardStats, getUsers, createUser, deleteUser, resetPassword } from "./actions";
+import { getDashboardStats, getUsers, createUser, deleteUser, resetPassword, deleteParticipant } from "./actions";
 import { Loader2, Users, IndianRupee, Download, Plus, Trash2, Shield, UserRound } from "lucide-react";
 import * as XLSX from "xlsx";
 import { useRouter } from "next/navigation";
@@ -64,6 +64,23 @@ export default function AdminDashboard() {
             alert(res.error);
         } else {
             alert("Password updated successfully.");
+        }
+    };
+
+    const handleDeleteParticipant = async (id: string, name: string) => {
+        if (confirm(`WARNING: Are you sure you want to delete the registration for ${name}?`)) {
+            const confirmText = prompt(`Type DELETE to permanently remove ${name}'s registration:`);
+            if (confirmText === "DELETE") {
+                const res = await deleteParticipant(id);
+                if (res?.error) {
+                    alert(res.error);
+                } else {
+                    alert("Registration deleted successfully.");
+                    loadData();
+                }
+            } else {
+                alert("Deletion cancelled.");
+            }
         }
     };
 
@@ -282,6 +299,57 @@ export default function AdminDashboard() {
                                 </button>
                             </form>
                         </div>
+                    </div>
+                </div>
+
+                {/* Manage Registrations */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                        <h3 className="text-lg font-semibold text-slate-800">Manage Registrations</h3>
+                        <span className="text-sm text-slate-500">Showing {stats?.allParticipants?.length || 0} entries (Based on Date Filter)</span>
+                    </div>
+                    <div className="overflow-x-auto max-h-96">
+                        <table className="w-full text-left border-collapse">
+                            <thead className="sticky top-0 z-10">
+                                <tr className="bg-slate-100 text-slate-600 text-sm border-b border-slate-200">
+                                    <th className="py-3 px-6 font-semibold">Reg. No</th>
+                                    <th className="py-3 px-6 font-semibold">Name</th>
+                                    <th className="py-3 px-6 font-semibold">Phone</th>
+                                    <th className="py-3 px-6 font-semibold">Event</th>
+                                    <th className="py-3 px-6 font-semibold">Status</th>
+                                    <th className="py-3 px-6 font-semibold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {stats?.allParticipants?.map((p: any) => (
+                                    <tr key={p.id} className="border-b border-slate-100 hover:bg-slate-50">
+                                        <td className="py-3 px-6 font-medium text-indigo-600">{p.registerNumber}</td>
+                                        <td className="py-3 px-6 text-slate-800 font-medium">{p.name}</td>
+                                        <td className="py-3 px-6 text-slate-600 font-mono text-sm">{p.phone}</td>
+                                        <td className="py-3 px-6 text-slate-600 max-w-xs truncate" title={`${p.eventType} - ${p.eventName}`}>{p.eventId || p.eventName}</td>
+                                        <td className="py-3 px-6">
+                                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${p.attended ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                                                {p.attended ? "Attended" : "Pending"}
+                                            </span>
+                                        </td>
+                                        <td className="py-3 px-6 text-right">
+                                            <button
+                                                onClick={() => handleDeleteParticipant(p.id, p.name)}
+                                                className="text-red-500 hover:text-red-700 p-1.5 rounded-md hover:bg-red-50 transition-colors"
+                                                title="Delete Registration"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {(!stats?.allParticipants || stats.allParticipants.length === 0) && (
+                                    <tr>
+                                        <td colSpan={6} className="py-8 text-center text-slate-500">No registrations found.</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
