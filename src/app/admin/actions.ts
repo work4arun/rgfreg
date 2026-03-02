@@ -196,7 +196,7 @@ export async function deleteParticipant(id: string) {
     }
 }
 
-export async function upsertVenues(venues: { category: string, title: string, venueDetail: string, googleMapLink: string }[]) {
+export async function upsertVenues(venues: { category: string, date: string, title: string, venueDetail: string, contactInfo: string, googleMapLink: string }[]) {
     try {
         await checkAdmin();
 
@@ -211,7 +211,7 @@ export async function upsertVenues(venues: { category: string, title: string, ve
             if (!v.category || !v.title) continue;
 
             const existing = await prisma.venue.findUnique({
-                where: { category_title: { category: v.category, title: v.title } }
+                where: { category_title_date: { category: v.category, title: v.title, date: v.date || "" } }
             });
 
             if (existing) {
@@ -219,6 +219,7 @@ export async function upsertVenues(venues: { category: string, title: string, ve
                     where: { id: existing.id },
                     data: {
                         venueDetail: v.venueDetail || existing.venueDetail,
+                        contactInfo: v.contactInfo || existing.contactInfo,
                         googleMapLink: v.googleMapLink || existing.googleMapLink
                     }
                 });
@@ -228,7 +229,9 @@ export async function upsertVenues(venues: { category: string, title: string, ve
                     data: {
                         category: v.category,
                         title: v.title,
+                        date: v.date || "",
                         venueDetail: v.venueDetail || "",
+                        contactInfo: v.contactInfo || "",
                         googleMapLink: v.googleMapLink || ""
                     }
                 });

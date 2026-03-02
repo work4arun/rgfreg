@@ -10,6 +10,7 @@ export default function VenueLookupPage() {
     const router = useRouter();
     const [categories, setCategories] = useState<string[]>([]);
     const [selectedCategory, setSelectedCategory] = useState("");
+    const [selectedDate, setSelectedDate] = useState("");
 
     const [venues, setVenues] = useState<any[]>([]);
     const [selectedVenueId, setSelectedVenueId] = useState("");
@@ -27,16 +28,21 @@ export default function VenueLookupPage() {
     useEffect(() => {
         if (!selectedCategory) {
             setVenues([]);
+            setSelectedDate("");
             setSelectedVenueId("");
             return;
         }
         setLoadingVenues(true);
+        setSelectedDate("");
         setSelectedVenueId("");
         getVenuesByCategory(selectedCategory).then(data => {
             setVenues(data);
             setLoadingVenues(false);
         });
     }, [selectedCategory]);
+
+    const availableDates = Array.from(new Set(venues.map(v => v.date))).filter(Boolean).sort();
+    const filteredVenues = selectedDate ? venues.filter(v => v.date === selectedDate) : venues;
 
     const selectedVenue = venues.find(v => v.id === selectedVenueId);
 
@@ -91,8 +97,37 @@ export default function VenueLookupPage() {
                             )}
                         </div>
 
+                        {/* Date Dropdown */}
+                        {selectedCategory && (availableDates.length > 0 || loadingVenues) && (
+                            <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                                    <CalendarRange className="w-4 h-4 text-emerald-500" />
+                                    Select Event Date
+                                </label>
+                                {loadingVenues ? (
+                                    <div className="h-12 w-full bg-slate-100 rounded-xl animate-pulse flex items-center px-4">
+                                        <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
+                                    </div>
+                                ) : (
+                                    <select
+                                        className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow appearance-none"
+                                        value={selectedDate}
+                                        onChange={(e) => {
+                                            setSelectedDate(e.target.value);
+                                            setSelectedVenueId("");
+                                        }}
+                                    >
+                                        <option value="" disabled>-- Select a Date --</option>
+                                        {availableDates.map(d => (
+                                            <option key={d as string} value={d as string}>{d as string}</option>
+                                        ))}
+                                    </select>
+                                )}
+                            </div>
+                        )}
+
                         {/* Event Dropdown */}
-                        {selectedCategory && (
+                        {selectedDate && (
                             <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
                                 <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
                                     <Map className="w-4 h-4 text-purple-500" />
@@ -109,7 +144,7 @@ export default function VenueLookupPage() {
                                         onChange={(e) => setSelectedVenueId(e.target.value)}
                                     >
                                         <option value="" disabled>-- Select an Event Title --</option>
-                                        {venues.map(v => (
+                                        {filteredVenues.map(v => (
                                             <option key={v.id} value={v.id}>{v.title}</option>
                                         ))}
                                     </select>
@@ -125,7 +160,20 @@ export default function VenueLookupPage() {
                                         <Navigation className="w-6 h-6" />
                                     </div>
                                     <h3 className="text-lg font-bold text-slate-900 mb-1 leading-tight">{selectedVenue.title}</h3>
-                                    <p className="text-indigo-600 font-medium mb-4">{selectedVenue.venueDetail}</p>
+
+                                    <div className="my-3 space-y-2 text-sm w-full">
+                                        <div className="bg-indigo-50/50 p-3 rounded-lg border border-indigo-100/50 text-left">
+                                            <span className="block text-xs font-bold text-indigo-400 uppercase tracking-wider mb-0.5">Venue details</span>
+                                            <span className="text-slate-700 font-medium">{selectedVenue.venueDetail}</span>
+                                        </div>
+
+                                        {selectedVenue.contactInfo && (
+                                            <div className="bg-emerald-50/50 p-3 rounded-lg border border-emerald-100/50 text-left">
+                                                <span className="block text-xs font-bold text-emerald-500 uppercase tracking-wider mb-0.5">Contact</span>
+                                                <span className="text-slate-700 font-medium">{selectedVenue.contactInfo}</span>
+                                            </div>
+                                        )}
+                                    </div>
 
                                     {selectedVenue.googleMapLink && (
                                         <a

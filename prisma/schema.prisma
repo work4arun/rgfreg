@@ -37,9 +37,11 @@ model Participant {
 model Venue {
   id            String @id @default(uuid())
   category      String // e.g., "Workshop", "Technical Event"
+  date          String @default("") // For date filtering
   title         String // e.g., "AI Hackathon"
   venueDetail   String // e.g., "Main Block - Room 101"
+  contactInfo   String @default("") // e.g., "Faculty: John 9876543210"
   googleMapLink String // URL
   
-  @@unique([category, title])
+  @@unique([category, title, date])
 }

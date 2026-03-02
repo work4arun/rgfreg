@@ -32,16 +32,18 @@ export default function AdminVenuesPage() {
             skipEmptyLines: true,
             complete: async (results) => {
                 const data = results.data as any[];
-                // Expected format: Category, Title, Venue Detail, Google Map Link
+                // Expected format: Category, Date, Title, Venue Detail, Contact Information, Google Map Link
                 const venues = data.map(row => ({
                     category: row['Category'] || row['category'] || '',
+                    date: row['Date'] || row['date'] || '',
                     title: row['Title'] || row['title'] || '',
                     venueDetail: row['Venue Detail'] || row['venueDetail'] || row['Venue'] || '',
+                    contactInfo: row['Contact Information'] || row['contactInfo'] || row['Contact'] || '',
                     googleMapLink: row['Google Map Link'] || row['googleMapLink'] || row['Map Link'] || '',
                 })).filter(v => v.category && v.title);
 
                 if (venues.length === 0) {
-                    setMessage({ type: 'error', text: 'No valid venues found. Ensure headers are: Category, Title, Venue Detail, Google Map Link.' });
+                    setMessage({ type: 'error', text: 'No valid venues found. Ensure headers are: Category, Date, Title, Venue Detail, Contact Information, Google Map Link.' });
                     setLoading(false);
                     return;
                 }
@@ -89,8 +91,10 @@ export default function AdminVenuesPage() {
                         <p className="text-slate-500 text-sm mt-1">
                             Upload a CSV file containing your venue details. The first row must be headers:<br />
                             <code className="text-xs bg-slate-100 px-1 py-0.5 rounded text-amber-700 font-mono">Category</code>,
+                            <code className="text-xs bg-slate-100 px-1 py-0.5 rounded text-amber-700 font-mono ml-1">Date</code>,
                             <code className="text-xs bg-slate-100 px-1 py-0.5 rounded text-amber-700 font-mono ml-1">Title</code>,
                             <code className="text-xs bg-slate-100 px-1 py-0.5 rounded text-amber-700 font-mono ml-1">Venue Detail</code>,
+                            <code className="text-xs bg-slate-100 px-1 py-0.5 rounded text-amber-700 font-mono ml-1">Contact Information</code>,
                             <code className="text-xs bg-slate-100 px-1 py-0.5 rounded text-amber-700 font-mono ml-1">Google Map Link</code>
                         </p>
                     </div>
@@ -149,8 +153,8 @@ export default function AdminVenuesPage() {
                     How it works
                 </h3>
                 <ul className="text-sm text-slate-600 space-y-2 list-disc pl-5">
-                    <li>The system will match existing venues by <strong>Category + Title</strong>.</li>
-                    <li>If a match is found, it will safely <strong>update</strong> the venue details and map link.</li>
+                    <li>The system will match existing venues by <strong>Category + Title + Date</strong>.</li>
+                    <li>If a match is found, it will safely <strong>update</strong> the venue details, contact, and map link.</li>
                     <li>If no match is found, it will neatly <strong>create</strong> a new venue record.</li>
                     <li>This ensures you can safely re-upload edited spreadsheets without creating duplicates.</li>
                 </ul>
