@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { CheckCircle2, Ticket } from "lucide-react";
 import DownloadTicketButton from "@/components/DownloadTicketButton";
 import QrCodeDisplay from "@/components/QrCodeDisplay";
+import { format } from "date-fns";
 
 export default async function SuccessPage({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
     const params = await searchParams;
@@ -25,6 +26,7 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
             <div id="ticket-container" className="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
 
                 <div className="bg-gradient-to-r from-emerald-500 flex flex-col items-center justify-center to-teal-600 p-8 text-center text-white relative">
+                    <h2 className="text-3xl font-extrabold mb-4 tracking-wider drop-shadow-md">RGF 2026</h2>
                     <div className="bg-white/20 p-4 rounded-full mb-4">
                         <CheckCircle2 size={48} className="text-white relative z-10" />
                     </div>
@@ -59,9 +61,15 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
                             <span className="text-slate-500 text-sm">College</span>
                             <span className="font-semibold text-slate-800 text-right max-w-[60%] truncate">{participant.college}</span>
                         </div>
-                        <div className="flex justify-between items-center pb-1">
+                        <div className="flex justify-between items-center border-b border-slate-200 pb-2">
                             <span className="text-slate-500 text-sm">Event</span>
                             <span className="font-semibold text-slate-800 text-right max-w-[60%] truncate">{participant.eventType}</span>
+                        </div>
+                        <div className="flex justify-between items-center pb-1">
+                            <span className="text-slate-500 text-sm">Date & Time</span>
+                            <span className="font-medium text-slate-700 text-right text-sm">
+                                {format(new Date(participant.createdAt), "MMM d, yyyy • h:mm a")}
+                            </span>
                         </div>
                     </div>
 
