@@ -177,13 +177,13 @@ export default function VenueLookupPage() {
 
                                     {selectedVenue.googleMapLink && (
                                         <a
-                                            href={selectedVenue.googleMapLink}
+                                            href={selectedVenue.googleMapLink.startsWith('http') ? selectedVenue.googleMapLink : `https://${selectedVenue.googleMapLink}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-medium transition-all active:scale-[0.98] shadow-md hover:shadow-lg"
+                                            className="w-full mt-2 flex items-center justify-center gap-2 py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-medium transition-all active:scale-[0.98] shadow-md hover:shadow-lg"
                                         >
                                             <MapPin className="w-4 h-4" />
-                                            Open in Google Maps
+                                            Open Google Maps
                                         </a>
                                     )}
                                 </div>
