@@ -196,7 +196,10 @@ export default function AdminDashboard() {
                                 <tr className="bg-slate-50 text-slate-600 text-sm border-b border-slate-200">
                                     <th className="py-3 px-6 font-semibold">Counter User</th>
                                     <th className="py-3 px-6 font-semibold text-right">Registrations Processed</th>
-                                    <th className="py-3 px-6 font-semibold text-right">Cash Collected</th>
+                                    <th className="py-3 px-6 font-semibold text-right">Already Paid</th>
+                                    <th className="py-3 px-6 font-semibold text-right">Spot Cash</th>
+                                    <th className="py-3 px-6 font-semibold text-right">Spot Digital Pay</th>
+                                    <th className="py-3 px-6 font-semibold text-right">Total Cash Collected</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -204,12 +207,15 @@ export default function AdminDashboard() {
                                     <tr key={cStat.counter} className="border-b border-slate-100 hover:bg-slate-50">
                                         <td className="py-4 px-6 font-medium text-slate-800">{cStat.counter}</td>
                                         <td className="py-4 px-6 text-right text-slate-600">{cStat.count}</td>
+                                        <td className="py-4 px-6 text-right text-slate-600">₹{cStat.alreadyPaid?.toLocaleString() || 0}</td>
+                                        <td className="py-4 px-6 text-right text-slate-600">₹{cStat.spotCash?.toLocaleString() || 0}</td>
+                                        <td className="py-4 px-6 text-right text-slate-600">₹{cStat.spotDigital?.toLocaleString() || 0}</td>
                                         <td className="py-4 px-6 text-right text-emerald-600 font-medium">₹{cStat.amount.toLocaleString()}</td>
                                     </tr>
                                 ))}
                                 {(!stats?.counterStats || stats.counterStats.length === 0) && (
                                     <tr>
-                                        <td colSpan={3} className="py-8 text-center text-slate-500">No data available for selected dates.</td>
+                                        <td colSpan={6} className="py-8 text-center text-slate-500">No data available for selected dates.</td>
                                     </tr>
                                 )}
                             </tbody>

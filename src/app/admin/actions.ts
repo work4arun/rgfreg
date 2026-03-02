@@ -54,17 +54,40 @@ export async function getDashboardStats(startDate?: string, endDate?: string) {
 
     // Group by counter to see money collected
     const counterStatsRaw = await prisma.participant.groupBy({
-        by: ["counterUsername"],
+        by: ["counterUsername", "paymentType"],
         _count: { id: true },
         _sum: { amount: true },
         where: { ...dateFilter, attended: true, counterUsername: { not: null } },
     });
 
-    const counterStats = counterStatsRaw.map(stat => ({
-        counter: stat.counterUsername,
-        count: stat._count.id,
-        amount: stat._sum.amount || 0,
-    }));
+    const counterStatsMap = new Map();
+    for (const stat of counterStatsRaw) {
+        if (!stat.counterUsername) continue;
+        if (!counterStatsMap.has(stat.counterUsername)) {
+            counterStatsMap.set(stat.counterUsername, {
+                counter: stat.counterUsername,
+                count: 0,
+                amount: 0,
+                alreadyPaid: 0,
+                spotCash: 0,
+                spotDigital: 0,
+            });
+        }
+        const cStat = counterStatsMap.get(stat.counterUsername);
+        cStat.count += stat._count.id;
+
+        const amt = stat._sum.amount || 0;
+        cStat.amount += amt;
+
+        if (stat.paymentType === "Already Paid") {
+            cStat.alreadyPaid += amt;
+        } else if (stat.paymentType === "Spot Cash") {
+            cStat.spotCash += amt;
+        } else if (stat.paymentType === "Spot Digital Pay") {
+            cStat.spotDigital += amt;
+        }
+    }
+    const counterStats = Array.from(counterStatsMap.values());
 
     // Get data for CSV export
     const allParticipants = await prisma.participant.findMany({
