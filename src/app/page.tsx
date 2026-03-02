@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { submitRegistration } from "./actions";
-import { Loader2 } from "lucide-react";
+import { Loader2, MapPin, Navigation } from "lucide-react";
+import Link from "next/link";
 
 export default function RegistrationPage() {
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +32,25 @@ export default function RegistrationPage() {
         </div>
 
         <div className="p-8">
+          <Link
+            href="/venue"
+            className="flex flex-col items-center justify-center mb-8 w-full group relative"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-300"></div>
+            <div className="relative w-full bg-blue-50 border border-blue-100/50 rounded-xl px-4 py-4 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-blue-100 rounded-lg shrink-0">
+                  <MapPin className="w-6 h-6 text-blue-600" />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-blue-900 font-bold leading-tight">Know Your Venue</h3>
+                  <p className="text-blue-700/80 text-xs">Find map links and exact locations</p>
+                </div>
+              </div>
+              <Navigation className="w-5 h-5 text-blue-600 mr-2 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+
           {error && (
             <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border border-red-100 font-medium">
               {error}
