@@ -1,8 +1,8 @@
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { QRCodeCanvas } from "qrcode.react";
 import { CheckCircle2, Ticket } from "lucide-react";
 import DownloadTicketButton from "@/components/DownloadTicketButton";
+import QrCodeDisplay from "@/components/QrCodeDisplay";
 
 export default async function SuccessPage({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
     const params = await searchParams;
@@ -41,12 +41,7 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
 
                     <div className="bg-slate-50 p-6 rounded-2xl w-full flex flex-col items-center border border-slate-200 mb-6 shadow-sm">
                         <div className="bg-white p-4 rounded-xl shadow-sm mb-4">
-                            <QRCodeCanvas
-                                value={participant.registerNumber}
-                                size={180}
-                                level="H"
-                                includeMargin={true}
-                            />
+                            <QrCodeDisplay value={participant.registerNumber} />
                         </div>
 
                         <div className="text-center w-full bg-white py-3 rounded-lg border border-slate-100 flex items-center justify-center gap-2 text-xl font-bold tracking-widest text-indigo-700">

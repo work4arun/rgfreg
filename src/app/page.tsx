@@ -134,7 +134,7 @@ export default function RegistrationPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700" htmlFor="eventName">Name of the Event</label>
+              <label className="text-sm font-semibold text-slate-700" htmlFor="eventName">Mention the specific event/Workshop/sport/championship name</label>
               <input
                 required
                 type="text"
