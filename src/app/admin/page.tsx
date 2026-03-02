@@ -35,9 +35,14 @@ export default function AdminDashboard() {
     const handleCreateUser = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
-        await createUser(formData);
-        e.currentTarget.reset();
-        loadData();
+        const res = await createUser(formData);
+        if (res?.error) {
+            alert(res.error);
+        } else {
+            alert(`User ${formData.get("username")} created successfully!`);
+            e.currentTarget.reset();
+            loadData();
+        }
     };
 
     const handleDeleteUser = async (id: string) => {
@@ -226,8 +231,8 @@ export default function AdminDashboard() {
                                             <UserRound className="w-5 h-5 text-slate-500" />
                                         </div>
                                         <div>
-                                            <p className="font-semibold text-slate-800">{user.username}</p>
-                                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${user.role === 'ADMIN' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'}`}>
+                                            <p className="font-semibold text-slate-900">{user.username}</p>
+                                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${user.role === 'ADMIN' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-900'}`}>
                                                 {user.role}
                                             </span>
                                         </div>

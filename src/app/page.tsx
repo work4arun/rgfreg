@@ -73,7 +73,7 @@ export default function RegistrationPage() {
                 type="email"
                 id="email"
                 name="email"
-                className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow bg-slate-50 focus:bg-white"
+                className="w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow bg-slate-50 focus:bg-white"
                 placeholder="john@example.com"
               />
             </div>
@@ -85,7 +85,7 @@ export default function RegistrationPage() {
                 type="text"
                 id="college"
                 name="college"
-                className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow bg-slate-50 focus:bg-white"
+                className="w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow bg-slate-50 focus:bg-white"
                 placeholder="Name of your institution"
               />
             </div>
@@ -140,7 +140,7 @@ export default function RegistrationPage() {
                 type="text"
                 id="eventName"
                 name="eventName"
-                className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow bg-slate-50 focus:bg-white"
+                className="w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow bg-slate-50 focus:bg-white"
                 placeholder="e.g. CodeSprint 2026"
               />
             </div>

@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { QRCodeSVG } from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
 import { CheckCircle2, Ticket } from "lucide-react";
 import DownloadTicketButton from "@/components/DownloadTicketButton";
 
@@ -22,7 +22,7 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
-            <div id="ticket-container" className="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 transform transition-all">
+            <div id="ticket-container" className="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
 
                 <div className="bg-gradient-to-r from-emerald-500 flex flex-col items-center justify-center to-teal-600 p-8 text-center text-white relative">
                     <div className="bg-white/20 p-4 rounded-full mb-4">
@@ -41,7 +41,7 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
 
                     <div className="bg-slate-50 p-6 rounded-2xl w-full flex flex-col items-center border border-slate-200 mb-6 shadow-sm">
                         <div className="bg-white p-4 rounded-xl shadow-sm mb-4">
-                            <QRCodeSVG
+                            <QRCodeCanvas
                                 value={participant.registerNumber}
                                 size={180}
                                 level="H"
