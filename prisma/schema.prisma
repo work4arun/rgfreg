@@ -33,3 +33,13 @@ model Participant {
   counterUsername String?  // To track which counter collected the payment
   createdAt       DateTime @default(now())
 }
+
+model Venue {
+  id            String @id @default(uuid())
+  category      String // e.g., "Workshop", "Technical Event"
+  title         String // e.g., "AI Hackathon"
+  venueDetail   String // e.g., "Main Block - Room 101"
+  googleMapLink String // URL
+  
+  @@unique([category, title])
+}

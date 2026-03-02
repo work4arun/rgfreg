@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { getDashboardStats, getUsers, createUser, deleteUser, resetPassword, deleteParticipant } from "./actions";
-import { Loader2, Users, IndianRupee, Download, Plus, Trash2, Shield, UserRound } from "lucide-react";
+import { Loader2, Users, IndianRupee, Download, Plus, Trash2, Shield, UserRound, MapPin } from "lucide-react";
 import * as XLSX from "xlsx";
 import { useRouter } from "next/navigation";
+import Link from 'next/link';
 
 export default function AdminDashboard() {
     const router = useRouter();
@@ -119,6 +120,12 @@ export default function AdminDashboard() {
                         <Shield className="text-indigo-600" /> Admin Dashboard
                     </h1>
                     <div className="flex gap-4">
+                        <Link
+                            href="/admin/venues"
+                            className="text-sm text-slate-600 hover:text-purple-600 font-medium transition-colors flex items-center gap-1"
+                        >
+                            <MapPin className="w-4 h-4" /> Manage Venues
+                        </Link>
                         <button onClick={() => router.push("/counter")} className="text-sm text-slate-600 hover:text-indigo-600 font-medium transition-colors">Go to Counter Dashboard</button>
                         <button onClick={() => router.push("/auth/login")} className="text-sm text-slate-600 hover:text-red-600 font-medium transition-colors">Sign Out</button>
                     </div>

@@ -190,7 +190,56 @@ export async function deleteParticipant(id: string) {
         await prisma.participant.delete({ where: { id } });
         revalidatePath("/admin");
         return { success: true };
-    } catch (err) {
-        return { error: "Failed to delete participant" };
+    } catch (error) {
+        console.error("Failed to delete participant:", error);
+        return { error: "Failed to delete participant." };
+    }
+}
+
+export async function upsertVenues(venues: { category: string, title: string, venueDetail: string, googleMapLink: string }[]) {
+    try {
+        await checkAdmin();
+
+        if (!venues || venues.length === 0) {
+            return { error: "No venues provided to upload." };
+        }
+
+        let createdCount = 0;
+        let updatedCount = 0;
+
+        for (const v of venues) {
+            if (!v.category || !v.title) continue;
+
+            const existing = await prisma.venue.findUnique({
+                where: { category_title: { category: v.category, title: v.title } }
+            });
+
+            if (existing) {
+                await prisma.venue.update({
+                    where: { id: existing.id },
+                    data: {
+                        venueDetail: v.venueDetail || existing.venueDetail,
+                        googleMapLink: v.googleMapLink || existing.googleMapLink
+                    }
+                });
+                updatedCount++;
+            } else {
+                await prisma.venue.create({
+                    data: {
+                        category: v.category,
+                        title: v.title,
+                        venueDetail: v.venueDetail || "",
+                        googleMapLink: v.googleMapLink || ""
+                    }
+                });
+                createdCount++;
+            }
+        }
+
+        revalidatePath("/admin/venues");
+        return { success: true, message: `Successfully uploaded: ${createdCount} created, ${updatedCount} updated.` };
+    } catch (error) {
+        console.error("Failed to upload venues:", error);
+        return { error: "Failed to upload venues to the database." };
     }
 }

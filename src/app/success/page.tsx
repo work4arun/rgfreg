@@ -1,8 +1,9 @@
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { CheckCircle2, Ticket } from "lucide-react";
+import { CheckCircle2, Ticket, MapPin, Navigation } from "lucide-react";
 import DownloadTicketButton from "@/components/DownloadTicketButton";
 import QrCodeDisplay from "@/components/QrCodeDisplay";
+import Link from "next/link";
 import { format } from "date-fns";
 
 export default async function SuccessPage({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
@@ -23,6 +24,31 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+            <div className="mb-6 mb-8 transform -translate-y-6">
+                <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto shadow-xl ring-8 ring-green-500/20 mb-4 animate-[bounce_0.5s_ease-in-out]">
+                    <CheckCircle2 className="w-10 h-10 text-white" />
+                </div>
+            </div>
+
+            <Link
+                href="/venue"
+                className="flex flex-col items-center justify-center -mt-6 mb-8 w-full group relative max-w-md"
+            >
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+                <div className="relative w-full bg-slate-900 border border-slate-700/50 rounded-xl px-4 py-4 flex items-center justify-between shadow-lg">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-indigo-500/20 rounded-lg shrink-0">
+                            <MapPin className="w-6 h-6 text-indigo-400" />
+                        </div>
+                        <div className="text-left">
+                            <h3 className="text-white font-bold leading-tight">Know Your Venue</h3>
+                            <p className="text-indigo-200/80 text-xs">Find map links and exact locations</p>
+                        </div>
+                    </div>
+                    <Navigation className="w-5 h-5 text-indigo-400 mr-2 group-hover:translate-x-1 transition-transform" />
+                </div>
+            </Link>
+
             <div id="ticket-container" className="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
 
                 <div className="bg-gradient-to-r from-emerald-500 flex flex-col items-center justify-center to-teal-600 p-8 text-center text-white relative">
