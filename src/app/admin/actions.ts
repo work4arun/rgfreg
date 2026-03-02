@@ -241,8 +241,8 @@ export async function upsertVenues(venues: { category: string, date: string, tit
 
         revalidatePath("/admin/venues");
         return { success: true, message: `Successfully uploaded: ${createdCount} created, ${updatedCount} updated.` };
-    } catch (error) {
-        console.error("Failed to upload venues:", error);
-        return { error: "Failed to upload venues to the database." };
+    } catch (error: any) {
+        console.error("Failed to upload venues. Full trace:", error);
+        return { error: `Database Error: ${error?.message || "Unknown error during upload"}` };
     }
 }
