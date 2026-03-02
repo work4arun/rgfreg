@@ -204,7 +204,7 @@ export default function CounterDashboard() {
                                     {isPendingSubmit ? (
                                         <Loader2 className="animate-spin w-6 h-6" />
                                     ) : (
-                                        "Mark as Attended & Paid"
+                                        "Mark as Paid & Entered RGF"
                                     )}
                                 </button>
                             </form>

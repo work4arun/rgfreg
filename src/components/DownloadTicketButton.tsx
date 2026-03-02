@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import html2canvas from "html2canvas";
+import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
 import { Download, Loader2 } from "lucide-react";
 
@@ -14,16 +14,20 @@ export default function DownloadTicketButton() {
             const ticketElement = document.getElementById("ticket-container");
             if (!ticketElement) return;
 
-            const canvas = await html2canvas(ticketElement, {
-                scale: 2,
-                useCORS: true,
+            const imgData = await toPng(ticketElement, {
+                cacheBust: true,
+                style: { transform: "none" } // Prevent layout shifts during render
             });
-
-            const imgData = canvas.toDataURL("image/png");
 
             const pdf = new jsPDF("p", "mm", "a4");
             const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+            // Create a temporary image to get original dimensions
+            const img = new Image();
+            img.src = imgData;
+            await new Promise((resolve) => { img.onload = resolve; });
+
+            const pdfHeight = (img.height * pdfWidth) / img.width;
 
             pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
             pdf.save("Rathinam_Grand_Fest_Ticket.pdf");

@@ -17,13 +17,18 @@ export async function submitRegistration(formData: FormData) {
         return { error: "All fields are required" };
     }
 
-    // Check if phone number already exists
-    const existingParticipant = await prisma.participant.findUnique({
-        where: { phone },
+    // Check if phone number or email already exists to return their existing ticket
+    const existingParticipant = await prisma.participant.findFirst({
+        where: {
+            OR: [
+                { phone },
+                { email }
+            ]
+        },
     });
 
     if (existingParticipant) {
-        return { error: "This phone number has already been registered." };
+        redirect(`/success?id=${existingParticipant.id}`);
     }
 
     // Generate sequential Register Number starting from 8000
