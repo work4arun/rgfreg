@@ -196,7 +196,25 @@ export async function deleteParticipant(id: string) {
     }
 }
 
-export async function upsertVenues(venues: { category: string, date: string, title: string, venueDetail: string, contactInfo: string, googleMapLink: string }[]) {
+export async function getAdminVenues() {
+    await checkAdmin();
+    return await prisma.venue.findMany({
+        orderBy: [{ category: 'asc' }, { date: 'asc' }, { title: 'asc' }]
+    });
+}
+
+export async function deleteVenue(id: string) {
+    await checkAdmin();
+    try {
+        await prisma.venue.delete({ where: { id } });
+        revalidatePath("/admin/venues");
+        return { success: true };
+    } catch (err) {
+        return { error: "Failed to delete venue" };
+    }
+}
+
+export async function upsertVenues(venues: { category: string, date: string, title: string, venueDetail: string, contactInfo: string, googleMapLink: string }[], overwriteAll: boolean = false) {
     try {
         await checkAdmin();
 
@@ -218,9 +236,9 @@ export async function upsertVenues(venues: { category: string, date: string, tit
                 await prisma.venue.update({
                     where: { id: existing.id },
                     data: {
-                        venueDetail: v.venueDetail || existing.venueDetail,
-                        contactInfo: v.contactInfo || existing.contactInfo,
-                        googleMapLink: v.googleMapLink || existing.googleMapLink
+                        venueDetail: overwriteAll ? v.venueDetail : (v.venueDetail || existing.venueDetail),
+                        contactInfo: overwriteAll ? v.contactInfo : (v.contactInfo || existing.contactInfo),
+                        googleMapLink: overwriteAll ? v.googleMapLink : (v.googleMapLink || existing.googleMapLink)
                     }
                 });
                 updatedCount++;
