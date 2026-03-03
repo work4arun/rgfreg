@@ -89,6 +89,35 @@ export async function getDashboardStats(startDate?: string, endDate?: string) {
     }
     const counterStats = Array.from(counterStatsMap.values());
 
+    const paymentStatsRaw = await prisma.participant.groupBy({
+        by: ["paymentType"],
+        _count: { id: true },
+        _sum: { amount: true },
+        where: { ...dateFilter, attended: true }
+    });
+
+    const paymentStats = {
+        alreadyPaid: 0,
+        spotCash: 0,
+        spotDigital: 0,
+        alreadyPaidAmount: 0,
+        spotCashAmount: 0,
+        spotDigitalAmount: 0
+    };
+
+    for (const stat of paymentStatsRaw) {
+        if (stat.paymentType === "Already Paid") {
+            paymentStats.alreadyPaid += stat._count.id;
+            paymentStats.alreadyPaidAmount += stat._sum.amount || 0;
+        } else if (stat.paymentType === "Spot Cash") {
+            paymentStats.spotCash += stat._count.id;
+            paymentStats.spotCashAmount += stat._sum.amount || 0;
+        } else if (stat.paymentType === "Spot Digital Pay") {
+            paymentStats.spotDigital += stat._count.id;
+            paymentStats.spotDigitalAmount += stat._sum.amount || 0;
+        }
+    }
+
     // Get data for CSV export
     const allParticipants = await prisma.participant.findMany({
         where: dateFilter,
@@ -101,6 +130,7 @@ export async function getDashboardStats(startDate?: string, endDate?: string) {
         totalCash,
         categoryStats,
         counterStats,
+        paymentStats,
         allParticipants,
     };
 }
@@ -140,7 +170,7 @@ export async function createUser(formData: FormData) {
         });
         revalidatePath("/admin");
         return { success: true };
-    } catch (err) {
+    } catch {
         return { error: "Failed to create user" };
     }
 }
@@ -157,7 +187,7 @@ export async function deleteUser(id: string) {
         await prisma.user.delete({ where: { id } });
         revalidatePath("/admin");
         return { success: true };
-    } catch (err) {
+    } catch {
         return { error: "Failed to delete user" };
     }
 }
@@ -179,7 +209,7 @@ export async function resetPassword(formData: FormData) {
         });
         revalidatePath("/admin");
         return { success: true };
-    } catch (err) {
+    } catch {
         return { error: "Failed to reset password" };
     }
 }
@@ -209,7 +239,7 @@ export async function deleteVenue(id: string) {
         await prisma.venue.delete({ where: { id } });
         revalidatePath("/admin/venues");
         return { success: true };
-    } catch (err) {
+    } catch {
         return { error: "Failed to delete venue" };
     }
 }
@@ -259,8 +289,9 @@ export async function upsertVenues(venues: { category: string, date: string, tit
 
         revalidatePath("/admin/venues");
         return { success: true, message: `Successfully uploaded: ${createdCount} created, ${updatedCount} updated.` };
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error during upload";
         console.error("Failed to upload venues. Full trace:", error);
-        return { error: `Database Error: ${error?.message || "Unknown error during upload"}` };
+        return { error: `Database Error: ${errorMessage}` };
     }
 }

@@ -7,10 +7,18 @@ import * as XLSX from "xlsx";
 import { useRouter } from "next/navigation";
 import Link from 'next/link';
 
+// Type definitions for Dashboard Stats
+interface CategoryStat { category: string; count: number; amount: number; }
+interface CounterStat { counter: string; count: number; amount: number; alreadyPaid?: number; spotCash?: number; spotDigital?: number; }
+interface Participant { id: string; registerNumber: string; name: string; phone: string; eventType: string; eventName: string; eventId?: string; attended: boolean; }
+interface PaymentStats { alreadyPaid: number; spotCash: number; spotDigital: number; alreadyPaidAmount: number; spotCashAmount: number; spotDigitalAmount: number; }
+interface DashboardStats { totalParticipants: number; attendedParticipants: number; totalCash: number; categoryStats: CategoryStat[]; counterStats: CounterStat[]; paymentStats: PaymentStats; allParticipants: Participant[]; }
+
 export default function AdminDashboard() {
     const router = useRouter();
-    const [stats, setStats] = useState<any>(null);
-    const [users, setUsers] = useState<any[]>([]);
+    const [stats, setStats] = useState<DashboardStats | null>(null);
+    interface User { id: string; username: string; role: string; }
+    const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
 
     const [startDate, setStartDate] = useState("");
@@ -30,7 +38,9 @@ export default function AdminDashboard() {
     };
 
     useEffect(() => {
+
         loadData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [startDate, endDate]);
 
     const handleCreateUser = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -95,7 +105,7 @@ export default function AdminDashboard() {
         // Create Summary Sheet
         const summaryData = [
             ["Category", "Total Registered", "Total Cash (₹)"],
-            ...stats.categoryStats.map((s: any) => [s.category, s.count, s.amount]),
+            ...stats.categoryStats.map((s) => [s.category, s.count, s.amount]),
             ["GRAND TOTAL", stats.totalParticipants, stats.totalCash],
         ];
         const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
@@ -177,6 +187,35 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
+                {/* Overall Payment Type Breakdown */}
+                {stats?.paymentStats && (
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center justify-between flex-wrap gap-4">
+                        <div className="flex-1 min-w-[120px]">
+                            <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Already Paid</p>
+                            <div className="flex items-baseline gap-2">
+                                <h2 className="text-2xl font-bold text-slate-800">{stats.paymentStats.alreadyPaid}</h2>
+                                <span className="text-sm text-slate-500 font-medium">(₹{stats.paymentStats.alreadyPaidAmount.toLocaleString()})</span>
+                            </div>
+                        </div>
+                        <div className="hidden border-l border-slate-200 h-12 md:block"></div>
+                        <div className="flex-1 min-w-[120px]">
+                            <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Spot Cash</p>
+                            <div className="flex items-baseline gap-2">
+                                <h2 className="text-2xl font-bold text-emerald-700">{stats.paymentStats.spotCash}</h2>
+                                <span className="text-sm text-emerald-600 font-medium">(₹{stats.paymentStats.spotCashAmount.toLocaleString()})</span>
+                            </div>
+                        </div>
+                        <div className="hidden border-l border-slate-200 h-12 md:block"></div>
+                        <div className="flex-1 min-w-[120px]">
+                            <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Spot Digital Pay</p>
+                            <div className="flex items-baseline gap-2">
+                                <h2 className="text-2xl font-bold text-blue-700">{stats.paymentStats.spotDigital}</h2>
+                                <span className="text-sm text-blue-600 font-medium">(₹{stats.paymentStats.spotDigitalAmount.toLocaleString()})</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Category Breakdown */}
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
@@ -192,7 +231,7 @@ export default function AdminDashboard() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {stats?.categoryStats.map((cat: any) => (
+                                {stats?.categoryStats.map((cat) => (
                                     <tr key={cat.category} className="border-b border-slate-100 hover:bg-slate-50">
                                         <td className="py-4 px-6 font-medium text-slate-800">{cat.category}</td>
                                         <td className="py-4 px-6 text-right text-slate-600">{cat.count}</td>
@@ -227,7 +266,7 @@ export default function AdminDashboard() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {stats?.counterStats?.map((cStat: any) => (
+                                {stats?.counterStats?.map((cStat) => (
                                     <tr key={cStat.counter} className="border-b border-slate-100 hover:bg-slate-50">
                                         <td className="py-4 px-6 font-medium text-slate-800">{cStat.counter}</td>
                                         <td className="py-4 px-6 text-right text-slate-600">{cStat.count}</td>
@@ -328,7 +367,7 @@ export default function AdminDashboard() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {stats?.allParticipants?.map((p: any) => (
+                                {stats?.allParticipants?.map((p) => (
                                     <tr key={p.id} className="border-b border-slate-100 hover:bg-slate-50">
                                         <td className="py-3 px-6 font-medium text-indigo-600">{p.registerNumber}</td>
                                         <td className="py-3 px-6 text-slate-800 font-medium">{p.name}</td>

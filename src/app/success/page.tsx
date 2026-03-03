@@ -100,9 +100,9 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
                     </div>
 
                     <div className="mt-6 text-center">
-                        <a href="/" className="text-indigo-600 font-semibold hover:text-indigo-700 hover:underline transition-all">
+                        <Link href="/" className="text-indigo-600 font-semibold hover:text-indigo-700 hover:underline transition-all">
                             Register another participant
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>

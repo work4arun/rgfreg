@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useCallback } from "react";
 import { searchParticipant, markAttended, getCounterStats } from "./actions";
 import { Loader2, Search, CheckCircle, Ticket, LogOut, QrCode } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -19,6 +19,17 @@ type Participant = {
     receiptNo?: string | null;
 };
 
+type Stats = {
+    spotCashAmount: number;
+    spotDigitalAmount: number;
+    alreadyPaidAmount: number;
+    nonAlreadyPaidCount: number;
+};
+
+type SearchResult =
+    | { error: string; participant?: never; warning?: never }
+    | { participant: Participant; warning?: string; error?: never };
+
 export default function CounterDashboard() {
     const router = useRouter();
     const [registerNumber, setRegisterNumber] = useState("");
@@ -29,16 +40,17 @@ export default function CounterDashboard() {
     const [showScanner, setShowScanner] = useState<boolean>(false);
     const [isPendingSearch, startSearchTransition] = useTransition();
     const [isPendingSubmit, startSubmitTransition] = useTransition();
-    const [stats, setStats] = useState<any>(null);
+    const [stats, setStats] = useState<Stats | null>(null);
 
-    const fetchStats = async () => {
+    const fetchStats = useCallback(async () => {
         const res = await getCounterStats();
-        if (res.success) setStats(res.stats);
-    };
+        if (res.success) setStats(res.stats as Stats);
+    }, []);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchStats();
-    }, []);
+    }, [fetchStats]);
 
     const startSearch = (regNo: string) => {
         if (!regNo) return;
@@ -48,13 +60,13 @@ export default function CounterDashboard() {
         setSuccess(false);
 
         startSearchTransition(async () => {
-            const res = await searchParticipant(regNo);
+            const res = await searchParticipant(regNo) as SearchResult;
             if (res.error) {
                 setError(res.error);
             } else if (res.participant) {
                 setParticipant(res.participant as Participant);
-                if ((res as any).warning) {
-                    setWarning((res as any).warning);
+                if (res.warning) {
+                    setWarning(res.warning);
                 }
             }
         });
@@ -192,7 +204,7 @@ export default function CounterDashboard() {
                     <div className="mb-8 p-6 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-200 shadow-sm flex flex-col items-center justify-center text-center">
                         <CheckCircle className="w-12 h-12 text-emerald-500 mb-3" />
                         <h3 className="text-xl font-bold mb-1">Successfully Marked as Attended!</h3>
-                        <p className="opacity-90">The participant's payment status has been recorded securely.</p>
+                        <p className="opacity-90">The participant&apos;s payment status has been recorded securely.</p>
                     </div>
                 )}
 

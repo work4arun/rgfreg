@@ -7,7 +7,7 @@ export async function getVenueCategories() {
         const venues = await prisma.venue.findMany({
             select: { category: true }
         });
-        const categories = Array.from(new Set(venues.map((v: any) => v.category))).sort() as string[];
+        const categories = Array.from(new Set(venues.map((v) => v.category))).sort() as string[];
         return categories;
     } catch (error) {
         console.error("Failed to fetch venue categories", error);

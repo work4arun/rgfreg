@@ -3,8 +3,17 @@
 import { useState, useEffect } from "react";
 import { getVenueCategories, getVenuesByCategory } from "./actions";
 import { MapPin, Navigation, Map, Loader2, CalendarRange, ArrowLeft } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+type Venue = {
+    id: string;
+    title: string;
+    category: string;
+    date: string;
+    venueDetail: string;
+    contactInfo?: string | null;
+    googleMapLink?: string | null;
+};
 
 export default function VenueLookupPage() {
     const router = useRouter();
@@ -12,7 +21,7 @@ export default function VenueLookupPage() {
     const [selectedCategory, setSelectedCategory] = useState("");
     const [selectedDate, setSelectedDate] = useState("");
 
-    const [venues, setVenues] = useState<any[]>([]);
+    const [venues, setVenues] = useState<Venue[]>([]);
     const [selectedVenueId, setSelectedVenueId] = useState("");
 
     const [loadingCategories, setLoadingCategories] = useState(true);
@@ -27,6 +36,7 @@ export default function VenueLookupPage() {
 
     useEffect(() => {
         if (!selectedCategory) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setVenues([]);
             setSelectedDate("");
             setSelectedVenueId("");
@@ -175,17 +185,24 @@ export default function VenueLookupPage() {
                                         )}
                                     </div>
 
-                                    {selectedVenue.googleMapLink && selectedVenue.googleMapLink.trim() !== "" && (
-                                        <a
-                                            href={selectedVenue.googleMapLink.startsWith('http') ? selectedVenue.googleMapLink : `https://${selectedVenue.googleMapLink}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="w-full mt-4 flex items-center justify-center gap-2 py-3.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition-all active:scale-[0.98] shadow-md hover:shadow-lg"
-                                        >
-                                            <MapPin className="w-5 h-5" />
-                                            Open Google Maps
-                                        </a>
-                                    )}
+                                    <div className="w-full mt-4">
+                                        {selectedVenue.googleMapLink && selectedVenue.googleMapLink.trim() !== "" ? (
+                                            <a
+                                                href={selectedVenue.googleMapLink.startsWith('http') ? selectedVenue.googleMapLink : `https://${selectedVenue.googleMapLink}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition-all active:scale-[0.98] shadow-md hover:shadow-lg"
+                                            >
+                                                <MapPin className="w-5 h-5" />
+                                                Open Google Maps
+                                            </a>
+                                        ) : (
+                                            <div className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-slate-100 text-slate-400 rounded-xl font-medium border border-slate-200 text-sm">
+                                                <MapPin className="w-4 h-4" />
+                                                Map link not available
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         )}
