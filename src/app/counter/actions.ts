@@ -3,6 +3,49 @@
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 
+export async function getCounterStats() {
+    const session = await getSession();
+    if (!session) return { error: "Unauthorized" };
+
+    try {
+        const statsRaw = await prisma.participant.groupBy({
+            by: ["paymentType"],
+            _count: { id: true },
+            _sum: { amount: true },
+            where: {
+                attended: true,
+                counterUsername: session.username,
+            },
+        });
+
+        const stats = {
+            spotCashAmount: 0,
+            spotDigitalAmount: 0,
+            alreadyPaidAmount: 0,
+            nonAlreadyPaidCount: 0,
+        };
+
+        for (const s of statsRaw) {
+            const amt = s._sum.amount || 0;
+            const cnt = s._count.id || 0;
+
+            if (s.paymentType === "Spot Cash") {
+                stats.spotCashAmount += amt;
+                stats.nonAlreadyPaidCount += cnt;
+            } else if (s.paymentType === "Spot Digital Pay") {
+                stats.spotDigitalAmount += amt;
+                stats.nonAlreadyPaidCount += cnt;
+            } else if (s.paymentType === "Already Paid") {
+                stats.alreadyPaidAmount += amt;
+            }
+        }
+
+        return { success: true, stats };
+    } catch (e) {
+        return { error: "Failed to load stats" };
+    }
+}
+
 export async function searchParticipant(registerNumber: string) {
     const session = await getSession();
     if (!session) return { error: "Unauthorized access" };

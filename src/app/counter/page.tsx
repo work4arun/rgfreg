@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { searchParticipant, markAttended } from "./actions";
+import { useState, useTransition, useEffect } from "react";
+import { searchParticipant, markAttended, getCounterStats } from "./actions";
 import { Loader2, Search, CheckCircle, Ticket, LogOut, QrCode } from "lucide-react";
 import { useRouter } from "next/navigation";
 import QrScanner from "@/components/QrScanner";
@@ -24,6 +24,16 @@ export default function CounterDashboard() {
     const [showScanner, setShowScanner] = useState<boolean>(false);
     const [isPendingSearch, startSearchTransition] = useTransition();
     const [isPendingSubmit, startSubmitTransition] = useTransition();
+    const [stats, setStats] = useState<any>(null);
+
+    const fetchStats = async () => {
+        const res = await getCounterStats();
+        if (res.success) setStats(res.stats);
+    };
+
+    useEffect(() => {
+        fetchStats();
+    }, []);
 
     const startSearch = (regNo: string) => {
         if (!regNo) return;
@@ -59,6 +69,7 @@ export default function CounterDashboard() {
                 setSuccess(true);
                 setParticipant(null);
                 setRegisterNumber("");
+                fetchStats();
             }
         });
     };
@@ -78,6 +89,35 @@ export default function CounterDashboard() {
                     </button>
                 </div>
             </header>
+
+            {stats && (
+                <div className="bg-indigo-50 border-b border-indigo-100 py-3">
+                    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap gap-4 items-center justify-between text-sm">
+                        <div className="flex gap-4">
+                            <div className="flex flex-col">
+                                <span className="text-slate-500 font-medium text-xs">Spot Cash</span>
+                                <span className="text-emerald-700 font-bold">₹{stats.spotCashAmount}</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-slate-500 font-medium text-xs">Spot Digital</span>
+                                <span className="text-emerald-700 font-bold">₹{stats.spotDigitalAmount}</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-slate-500 font-medium text-xs">Total Spot Coll</span>
+                                <span className="text-indigo-700 font-bold">₹{stats.spotCashAmount + stats.spotDigitalAmount}</span>
+                            </div>
+                            <div className="flex flex-col pl-4 border-l border-indigo-200">
+                                <span className="text-slate-500 font-medium text-xs">Already Paid Total</span>
+                                <span className="text-slate-700 font-bold">₹{stats.alreadyPaidAmount}</span>
+                            </div>
+                        </div>
+                        <div className="bg-white px-3 py-1.5 rounded-lg border border-indigo-200 shadow-sm flex items-center gap-2">
+                            <span className="text-slate-600 font-medium">New Spot Registrations (Excl. Already Paid):</span>
+                            <span className="text-indigo-600 font-bold text-base">{stats.nonAlreadyPaidCount}</span>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <main className="max-w-3xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 flex-grow">
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
@@ -159,7 +199,7 @@ export default function CounterDashboard() {
                                 </div>
                             </div>
 
-                            <form action={handleAttended} className="space-y-5">
+                            <form action={handleAttended} className="space-y-5" autoComplete="off">
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-slate-700">Payment Type</label>
                                     <select
@@ -179,6 +219,7 @@ export default function CounterDashboard() {
                                     <input
                                         type="number"
                                         name="amount"
+                                        autoComplete="off"
                                         required
                                         min="0"
                                         placeholder="e.g. 500"
@@ -191,6 +232,7 @@ export default function CounterDashboard() {
                                     <input
                                         type="text"
                                         name="receiptNo"
+                                        autoComplete="off"
                                         placeholder="Enter transaction ID or receipt no"
                                         className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-indigo-500 bg-slate-50 focus:bg-white"
                                     />
