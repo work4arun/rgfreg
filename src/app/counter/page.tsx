@@ -13,6 +13,10 @@ type Participant = {
     college: string;
     eventType: string;
     eventName: string;
+    attended?: boolean;
+    paymentType?: string;
+    amount?: number;
+    receiptNo?: string | null;
 };
 
 export default function CounterDashboard() {
@@ -20,6 +24,7 @@ export default function CounterDashboard() {
     const [registerNumber, setRegisterNumber] = useState("");
     const [participant, setParticipant] = useState<Participant | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [warning, setWarning] = useState<string | null>(null);
     const [success, setSuccess] = useState<boolean>(false);
     const [showScanner, setShowScanner] = useState<boolean>(false);
     const [isPendingSearch, startSearchTransition] = useTransition();
@@ -38,6 +43,7 @@ export default function CounterDashboard() {
     const startSearch = (regNo: string) => {
         if (!regNo) return;
         setError(null);
+        setWarning(null);
         setParticipant(null);
         setSuccess(false);
 
@@ -47,6 +53,9 @@ export default function CounterDashboard() {
                 setError(res.error);
             } else if (res.participant) {
                 setParticipant(res.participant as Participant);
+                if ((res as any).warning) {
+                    setWarning((res as any).warning);
+                }
             }
         });
     };
@@ -60,6 +69,7 @@ export default function CounterDashboard() {
         if (!participant) return;
         formData.append("id", participant.id);
         setError(null);
+        setWarning(null);
 
         startSubmitTransition(async () => {
             const res = await markAttended(formData);
@@ -172,6 +182,12 @@ export default function CounterDashboard() {
                     </div>
                 )}
 
+                {warning && (
+                    <div className="mb-8 p-4 bg-amber-50 text-amber-800 rounded-xl border border-amber-200 shadow-sm font-medium">
+                        {warning}
+                    </div>
+                )}
+
                 {success && (
                     <div className="mb-8 p-6 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-200 shadow-sm flex flex-col items-center justify-center text-center">
                         <CheckCircle className="w-12 h-12 text-emerald-500 mb-3" />
@@ -199,12 +215,13 @@ export default function CounterDashboard() {
                                 </div>
                             </div>
 
-                            <form action={handleAttended} className="space-y-5" autoComplete="off">
+                            <form key={participant.id} action={handleAttended} className="space-y-5" autoComplete="off">
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-slate-700">Payment Type</label>
                                     <select
                                         required
                                         name="paymentType"
+                                        defaultValue={participant.paymentType || ""}
                                         className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-indigo-500 bg-slate-50 focus:bg-white appearance-none"
                                     >
                                         <option value="">Select Payment Method...</option>
@@ -222,6 +239,7 @@ export default function CounterDashboard() {
                                         autoComplete="off"
                                         required
                                         min="0"
+                                        defaultValue={participant.amount || ""}
                                         placeholder="e.g. 500"
                                         className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-indigo-500 bg-slate-50 focus:bg-white"
                                     />
@@ -233,6 +251,7 @@ export default function CounterDashboard() {
                                         type="text"
                                         name="receiptNo"
                                         autoComplete="off"
+                                        defaultValue={participant.receiptNo || ""}
                                         placeholder="Enter transaction ID or receipt no"
                                         className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-indigo-500 bg-slate-50 focus:bg-white"
                                     />
@@ -246,7 +265,7 @@ export default function CounterDashboard() {
                                     {isPendingSubmit ? (
                                         <Loader2 className="animate-spin w-6 h-6" />
                                     ) : (
-                                        "Mark as Paid & Entered RGF"
+                                        participant.attended ? "Update Entry Details" : "Mark as Paid & Entered RGF"
                                     )}
                                 </button>
                             </form>

@@ -59,7 +59,10 @@ export async function searchParticipant(registerNumber: string) {
     }
 
     if (participant.attended) {
-        return { error: `Participant has already attended on ${participant.createdAt.toLocaleString()}` };
+        return {
+            warning: `Warning: This participant has already been marked as attended. You may update their payment data below.`,
+            participant
+        };
     }
 
     return { participant };
