@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition, useEffect, useCallback } from "react";
-import { searchParticipant, markAttended, getCounterStats } from "./actions";
-import { Loader2, Search, CheckCircle, Ticket, LogOut, QrCode } from "lucide-react";
+import { searchParticipant, markAttended, getCounterStats, updateAttendedDay2 } from "./actions";
+import { Loader2, Search, CheckCircle, Ticket, LogOut, QrCode, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import QrScanner from "@/components/QrScanner";
 
@@ -228,23 +228,88 @@ export default function CounterDashboard() {
                             </div>
 
                             {participant.attended ? (
-                                <div className="mt-4 p-6 bg-slate-50 border border-slate-200 rounded-xl text-center space-y-2">
-                                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 mb-2">
-                                        <CheckCircle className="w-6 h-6 text-emerald-600" />
+                                <div className="mt-4 p-6 bg-amber-50 border border-amber-200 rounded-xl space-y-4">
+                                    <div className="flex flex-col items-center justify-center text-center mb-4">
+                                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-100 mb-2">
+                                            <AlertCircle className="w-6 h-6 text-amber-600" />
+                                        </div>
+                                        <h3 className="text-lg font-bold text-amber-900 uppercase tracking-wide">Second Day Entry</h3>
+                                        <p className="text-sm text-amber-800 font-medium">
+                                            This participant has already been successfully processed on a previous day.
+                                        </p>
                                     </div>
-                                    <h3 className="text-lg font-bold text-slate-800">Already Registered & Paid</h3>
-                                    <p className="text-sm text-slate-500">
-                                        This participant has already been successfully processed at the counter. Updates are disabled to prevent duplicate entries.
-                                    </p>
-                                    <div className="mt-4 pt-4 border-t border-slate-200 text-left space-y-2 text-sm">
+
+                                    <div className="bg-white/60 rounded-lg p-4 text-sm mb-4">
+                                        <div className="flex justify-between mb-2">
+                                            <span className="text-amber-700 font-bold">Previously Paid:</span>
+                                            <span className="text-slate-800 font-bold">₹{participant.amount || 0}</span>
+                                        </div>
                                         <div className="flex justify-between">
-                                            <span className="text-slate-500 font-medium">Payment Type:</span>
+                                            <span className="text-amber-700 font-bold">Previous Method:</span>
                                             <span className="text-slate-800 font-semibold">{participant.paymentType || 'N/A'}</span>
                                         </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-slate-500 font-medium">Amount Paid:</span>
-                                            <span className="text-emerald-700 font-bold">₹{participant.amount || 0}</span>
-                                        </div>
+                                    </div>
+
+                                    <div className="pt-4 border-t border-amber-200">
+                                        <h4 className="font-bold text-amber-900 mb-4 text-center">New Payment for Day 2</h4>
+                                        <form
+                                            key={`${participant.id}-day2`}
+                                            action={async (formData) => {
+                                                formData.append("id", participant.id);
+                                                startSubmitTransition(async () => {
+                                                    const res = await updateAttendedDay2(formData);
+                                                    if (res.error) {
+                                                        setError(res.error);
+                                                    } else {
+                                                        setSuccess(true);
+                                                        setParticipant(null);
+                                                        setRegisterNumber("");
+                                                        fetchStats();
+                                                    }
+                                                });
+                                            }}
+                                            className="space-y-4"
+                                            autoComplete="off"
+                                        >
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-bold text-amber-900">Day 2 Payment Type</label>
+                                                <select
+                                                    required
+                                                    name="paymentType"
+                                                    defaultValue=""
+                                                    className="w-full border border-amber-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-amber-500 bg-white"
+                                                >
+                                                    <option value="">Select Payment Method...</option>
+                                                    <option value="Spot Digital Pay">Spot Digital Pay</option>
+                                                    <option value="Spot Cash">Spot Cash</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-bold text-amber-900">New Amount (₹) for Day 2</label>
+                                                <input
+                                                    type="number"
+                                                    name="amount"
+                                                    autoComplete="off"
+                                                    required
+                                                    min="1"
+                                                    placeholder="e.g. 200"
+                                                    className="w-full border border-amber-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-amber-500 bg-white"
+                                                />
+                                            </div>
+
+                                            <button
+                                                type="submit"
+                                                disabled={isPendingSubmit}
+                                                className="w-full flex items-center justify-center py-4 px-4 border border-transparent rounded-lg shadow-md text-lg font-bold text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-70 transition-all mt-4"
+                                            >
+                                                {isPendingSubmit ? (
+                                                    <Loader2 className="animate-spin w-6 h-6" />
+                                                ) : (
+                                                    "Record Day 2 Payment & Enter"
+                                                )}
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             ) : (

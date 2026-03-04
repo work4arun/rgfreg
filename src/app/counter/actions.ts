@@ -100,3 +100,42 @@ export async function markAttended(formData: FormData) {
         return { error: "Failed to mark participant as attended" };
     }
 }
+
+export async function updateAttendedDay2(formData: FormData) {
+    const session = await getSession();
+    if (!session) return { error: "Unauthorized access" };
+
+    const id = formData.get("id") as string;
+    const paymentType = formData.get("paymentType") as string;
+    const receiptNo = formData.get("receiptNo") as string;
+    const newAmountStr = formData.get("amount") as string;
+    const newAmount = newAmountStr ? parseInt(newAmountStr, 10) : 0;
+
+    if (!id || !paymentType || newAmount <= 0) {
+        return { error: "Amount and Payment Type are required for Day 2 entry" };
+    }
+
+    try {
+        const existing = await prisma.participant.findUnique({ where: { id } });
+        if (!existing) return { error: "Participant not found" };
+
+        let combinedReceipt = existing.receiptNo || "";
+        if (receiptNo) {
+            combinedReceipt = combinedReceipt ? `${combinedReceipt}, ${receiptNo}` : receiptNo;
+        }
+
+        await prisma.participant.update({
+            where: { id },
+            data: {
+                paymentType, // their latest payment mode goes to stats
+                amount: { increment: newAmount },
+                receiptNo: combinedReceipt || null,
+                counterUsername: session.username,
+            },
+        });
+        return { success: true };
+    } catch (error) {
+        console.error(error);
+        return { error: "Failed to update participant for Day 2" };
+    }
+}
