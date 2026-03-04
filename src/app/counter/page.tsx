@@ -280,6 +280,7 @@ export default function CounterDashboard() {
                                                     className="w-full border border-amber-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-amber-500 bg-white"
                                                 >
                                                     <option value="">Select Payment Method...</option>
+                                                    <option value="Already Paid">Already Paid</option>
                                                     <option value="Spot Digital Pay">Spot Digital Pay</option>
                                                     <option value="Spot Cash">Spot Cash</option>
                                                 </select>
