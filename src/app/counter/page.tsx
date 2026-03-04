@@ -227,60 +227,82 @@ export default function CounterDashboard() {
                                 </div>
                             </div>
 
-                            <form key={participant.id} action={handleAttended} className="space-y-5" autoComplete="off">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-slate-700">Payment Type</label>
-                                    <select
-                                        required
-                                        name="paymentType"
-                                        defaultValue={participant.paymentType || ""}
-                                        className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-indigo-500 bg-slate-50 focus:bg-white appearance-none"
+                            {participant.attended ? (
+                                <div className="mt-4 p-6 bg-slate-50 border border-slate-200 rounded-xl text-center space-y-2">
+                                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 mb-2">
+                                        <CheckCircle className="w-6 h-6 text-emerald-600" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-800">Already Registered & Paid</h3>
+                                    <p className="text-sm text-slate-500">
+                                        This participant has already been successfully processed at the counter. Updates are disabled to prevent duplicate entries.
+                                    </p>
+                                    <div className="mt-4 pt-4 border-t border-slate-200 text-left space-y-2 text-sm">
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500 font-medium">Payment Type:</span>
+                                            <span className="text-slate-800 font-semibold">{participant.paymentType || 'N/A'}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500 font-medium">Amount Paid:</span>
+                                            <span className="text-emerald-700 font-bold">₹{participant.amount || 0}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <form key={participant.id} action={handleAttended} className="space-y-5" autoComplete="off">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-semibold text-slate-700">Payment Type</label>
+                                        <select
+                                            required
+                                            name="paymentType"
+                                            defaultValue={participant.paymentType || ""}
+                                            className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-indigo-500 bg-slate-50 focus:bg-white appearance-none"
+                                        >
+                                            <option value="">Select Payment Method...</option>
+                                            <option value="Already Paid">Already Paid</option>
+                                            <option value="Spot Digital Pay">Spot Digital Pay</option>
+                                            <option value="Spot Cash">Spot Cash</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-semibold text-slate-700">Amount Collected (₹)</label>
+                                        <input
+                                            type="number"
+                                            name="amount"
+                                            autoComplete="off"
+                                            required
+                                            min="0"
+                                            defaultValue={participant.amount || ""}
+                                            placeholder="e.g. 500"
+                                            className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-indigo-500 bg-slate-50 focus:bg-white"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-semibold text-slate-700">Receipt No (Optional)</label>
+                                        <input
+                                            type="text"
+                                            name="receiptNo"
+                                            autoComplete="off"
+                                            defaultValue={participant.receiptNo || ""}
+                                            placeholder="Enter transaction ID or receipt no"
+                                            className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-indigo-500 bg-slate-50 focus:bg-white"
+                                        />
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={isPendingSubmit}
+                                        className="w-full flex items-center justify-center py-4 px-4 border border-transparent rounded-lg shadow-md text-lg font-bold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-70 transition-all mt-6"
                                     >
-                                        <option value="">Select Payment Method...</option>
-                                        <option value="Already Paid">Already Paid</option>
-                                        <option value="Spot Digital Pay">Spot Digital Pay</option>
-                                        <option value="Spot Cash">Spot Cash</option>
-                                    </select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-slate-700">Amount Collected (₹)</label>
-                                    <input
-                                        type="number"
-                                        name="amount"
-                                        autoComplete="off"
-                                        required
-                                        min="0"
-                                        defaultValue={participant.amount || ""}
-                                        placeholder="e.g. 500"
-                                        className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-indigo-500 bg-slate-50 focus:bg-white"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-slate-700">Receipt No (Optional)</label>
-                                    <input
-                                        type="text"
-                                        name="receiptNo"
-                                        autoComplete="off"
-                                        defaultValue={participant.receiptNo || ""}
-                                        placeholder="Enter transaction ID or receipt no"
-                                        className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-indigo-500 bg-slate-50 focus:bg-white"
-                                    />
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    disabled={isPendingSubmit}
-                                    className="w-full flex items-center justify-center py-4 px-4 border border-transparent rounded-lg shadow-md text-lg font-bold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-70 transition-all mt-6"
-                                >
-                                    {isPendingSubmit ? (
-                                        <Loader2 className="animate-spin w-6 h-6" />
-                                    ) : (
-                                        participant.attended ? "Update Entry Details" : "Mark as Paid & Entered RGF"
-                                    )}
-                                </button>
-                            </form>
+                                        {isPendingSubmit ? (
+                                            <Loader2 className="animate-spin w-6 h-6" />
+                                        ) : (
+                                            "Mark as Paid & Entered RGF"
+                                        )}
+                                    </button>
+                                </form>
+                            )}
                         </div>
                     </div>
                 )}
