@@ -146,6 +146,7 @@ export default function RegistrationPage() {
               >
                 <option value="">Select Event Category...</option>
                 <option value="Technical Event">Technical Event</option>
+                <option value="Non-Technical/Cultural">Non-Technical/Cultural</option>
                 <option value="Workshop">Workshop</option>
                 <option value="Sports">Sports</option>
                 <option value="Hackathon">Hackathon</option>
