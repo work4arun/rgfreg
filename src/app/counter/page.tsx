@@ -27,8 +27,8 @@ type Stats = {
 };
 
 type SearchResult =
-    | { error: string; participant?: never; warning?: never }
-    | { participant: Participant; warning?: string; error?: never };
+    | { error: string; participant?: never; warning?: never; canSubmitDay2?: never }
+    | { participant: Participant; warning?: string; error?: never; canSubmitDay2?: boolean };
 
 export default function CounterDashboard() {
     const router = useRouter();
@@ -41,6 +41,7 @@ export default function CounterDashboard() {
     const [isPendingSearch, startSearchTransition] = useTransition();
     const [isPendingSubmit, startSubmitTransition] = useTransition();
     const [stats, setStats] = useState<Stats | null>(null);
+    const [canSubmitDay2, setCanSubmitDay2] = useState<boolean>(false);
 
     const fetchStats = useCallback(async () => {
         const res = await getCounterStats();
@@ -58,6 +59,7 @@ export default function CounterDashboard() {
         setWarning(null);
         setParticipant(null);
         setSuccess(false);
+        setCanSubmitDay2(false);
 
         startSearchTransition(async () => {
             const res = await searchParticipant(regNo) as SearchResult;
@@ -65,6 +67,7 @@ export default function CounterDashboard() {
                 setError(res.error);
             } else if (res.participant) {
                 setParticipant(res.participant as Participant);
+                setCanSubmitDay2(res.canSubmitDay2 || false);
                 if (res.warning) {
                     setWarning(res.warning);
                 }
@@ -251,66 +254,75 @@ export default function CounterDashboard() {
                                     </div>
 
                                     <div className="pt-4 border-t border-amber-200">
-                                        <h4 className="font-bold text-amber-900 mb-4 text-center">New Payment for Day 2</h4>
-                                        <form
-                                            key={`${participant.id}-day2`}
-                                            action={async (formData) => {
-                                                formData.append("id", participant.id);
-                                                startSubmitTransition(async () => {
-                                                    const res = await updateAttendedDay2(formData);
-                                                    if (res.error) {
-                                                        setError(res.error);
-                                                    } else {
-                                                        setSuccess(true);
-                                                        setParticipant(null);
-                                                        setRegisterNumber("");
-                                                        fetchStats();
-                                                    }
-                                                });
-                                            }}
-                                            className="space-y-4"
-                                            autoComplete="off"
-                                        >
-                                            <div className="space-y-2">
-                                                <label className="text-sm font-bold text-amber-900">Day 2 Payment Type</label>
-                                                <select
-                                                    required
-                                                    name="paymentType"
-                                                    defaultValue=""
-                                                    className="w-full border border-amber-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-amber-500 bg-white"
-                                                >
-                                                    <option value="">Select Payment Method...</option>
-                                                    <option value="Already Paid">Already Paid</option>
-                                                    <option value="Spot Digital Pay">Spot Digital Pay</option>
-                                                    <option value="Spot Cash">Spot Cash</option>
-                                                </select>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <label className="text-sm font-bold text-amber-900">New Amount (₹) for Day 2</label>
-                                                <input
-                                                    type="number"
-                                                    name="amount"
+                                        {canSubmitDay2 ? (
+                                            <>
+                                                <h4 className="font-bold text-amber-900 mb-4 text-center">New Payment for Day 2</h4>
+                                                <form
+                                                    key={`${participant.id}-day2`}
+                                                    action={async (formData) => {
+                                                        formData.append("id", participant.id);
+                                                        startSubmitTransition(async () => {
+                                                            const res = await updateAttendedDay2(formData);
+                                                            if (res.error) {
+                                                                setError(res.error);
+                                                            } else {
+                                                                setSuccess(true);
+                                                                setParticipant(null);
+                                                                setRegisterNumber("");
+                                                                fetchStats();
+                                                            }
+                                                        });
+                                                    }}
+                                                    className="space-y-4"
                                                     autoComplete="off"
-                                                    required
-                                                    min="1"
-                                                    placeholder="e.g. 200"
-                                                    className="w-full border border-amber-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-amber-500 bg-white"
-                                                />
-                                            </div>
+                                                >
+                                                    <div className="space-y-2">
+                                                        <label className="text-sm font-bold text-amber-900">Day 2 Payment Type</label>
+                                                        <select
+                                                            required
+                                                            name="paymentType"
+                                                            defaultValue=""
+                                                            className="w-full border border-amber-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-amber-500 bg-white"
+                                                        >
+                                                            <option value="">Select Payment Method...</option>
+                                                            <option value="Already Paid">Already Paid</option>
+                                                            <option value="Spot Digital Pay">Spot Digital Pay</option>
+                                                            <option value="Spot Cash">Spot Cash</option>
+                                                        </select>
+                                                    </div>
 
-                                            <button
-                                                type="submit"
-                                                disabled={isPendingSubmit}
-                                                className="w-full flex items-center justify-center py-4 px-4 border border-transparent rounded-lg shadow-md text-lg font-bold text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-70 transition-all mt-4"
-                                            >
-                                                {isPendingSubmit ? (
-                                                    <Loader2 className="animate-spin w-6 h-6" />
-                                                ) : (
-                                                    "Record Day 2 Payment & Enter"
-                                                )}
-                                            </button>
-                                        </form>
+                                                    <div className="space-y-2">
+                                                        <label className="text-sm font-bold text-amber-900">New Amount (₹) for Day 2</label>
+                                                        <input
+                                                            type="number"
+                                                            name="amount"
+                                                            autoComplete="off"
+                                                            required
+                                                            min="1"
+                                                            placeholder="e.g. 200"
+                                                            className="w-full border border-amber-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-slate-900 focus:ring-amber-500 bg-white"
+                                                        />
+                                                    </div>
+
+                                                    <button
+                                                        type="submit"
+                                                        disabled={isPendingSubmit}
+                                                        className="w-full flex items-center justify-center py-4 px-4 border border-transparent rounded-lg shadow-md text-lg font-bold text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-70 transition-all mt-4"
+                                                    >
+                                                        {isPendingSubmit ? (
+                                                            <Loader2 className="animate-spin w-6 h-6" />
+                                                        ) : (
+                                                            "Record Day 2 Payment & Enter"
+                                                        )}
+                                                    </button>
+                                                </form>
+                                            </>
+                                        ) : (
+                                            <div className="text-center p-4 bg-white/50 rounded-lg border border-amber-300/50">
+                                                <p className="text-amber-900 font-bold">Second Day Check-in Blocked</p>
+                                                <p className="text-sm text-amber-800 font-medium mt-1">This user checked in today. Please verify their physical presence tomorrow to unlock the Second Day Pass option.</p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ) : (
@@ -371,8 +383,9 @@ export default function CounterDashboard() {
                             )}
                         </div>
                     </div>
-                )}
-            </main>
-        </div>
+                )
+                }
+            </main >
+        </div >
     );
 }

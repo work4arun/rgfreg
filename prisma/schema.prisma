@@ -32,6 +32,7 @@ model Participant {
   attended        Boolean  @default(false)
   counterUsername String?  // To track which counter collected the payment
   createdAt       DateTime @default(now())
+  lastAttendedAt  DateTime? // To track exactly when they checked in
 }
 
 model Venue {

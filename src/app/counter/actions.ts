@@ -2,7 +2,6 @@
 
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/session";
-
 export async function getCounterStats() {
     const session = await getSession();
     if (!session) return { error: "Unauthorized" };
@@ -46,6 +45,14 @@ export async function getCounterStats() {
     }
 }
 
+function isTodayIST(date: Date | null) {
+    if (!date) return false;
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const dateIST = new Date(date.getTime() + istOffset).toISOString().split('T')[0];
+    const todayIST = new Date(new Date().getTime() + istOffset).toISOString().split('T')[0];
+    return dateIST === todayIST;
+}
+
 export async function searchParticipant(registerNumber: string) {
     const session = await getSession();
     if (!session) return { error: "Unauthorized access" };
@@ -59,9 +66,15 @@ export async function searchParticipant(registerNumber: string) {
     }
 
     if (participant.attended) {
+        // Evaluate if they checked in today or not
+        const canSubmitDay2 = !isTodayIST(participant.lastAttendedAt);
+
         return {
-            warning: `Warning: This participant has already been marked as attended. You may update their payment data below.`,
-            participant
+            warning: canSubmitDay2
+                ? `Warning: This participant has already been marked as attended on a previous day. You may process a Day 2 entry below.`
+                : `Notice: This participant has already entered today. Second Option is only available tomorrow.`,
+            participant,
+            canSubmitDay2
         };
     }
 
@@ -92,6 +105,7 @@ export async function markAttended(formData: FormData) {
                 amount,
                 receiptNo: receiptNo || null,
                 counterUsername: session.username,
+                lastAttendedAt: new Date(),
             },
         });
         return { success: true };
@@ -131,6 +145,7 @@ export async function updateAttendedDay2(formData: FormData) {
                 amount: { increment: newAmount },
                 receiptNo: combinedReceipt || null,
                 counterUsername: session.username,
+                lastAttendedAt: new Date(),
             },
         });
         return { success: true };
