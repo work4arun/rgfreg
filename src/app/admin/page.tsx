@@ -21,8 +21,15 @@ export default function AdminDashboard() {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
+    // Get Today's Date in IST safely for pre-filling input fields
+    const getTodayIST = () => {
+        const now = new Date();
+        const istTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+        return istTime.toISOString().split('T')[0];
+    };
+
+    const [startDate, setStartDate] = useState(getTodayIST());
+    const [endDate, setEndDate] = useState(getTodayIST());
 
     const loadData = async () => {
         setLoading(true);

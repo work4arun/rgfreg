@@ -16,12 +16,25 @@ async function checkAdmin() {
 export async function getDashboardStats(startDate?: string, endDate?: string) {
     await checkAdmin();
 
-    let dateFilter = {};
+    // IST Timezone calculations (+05:30)
+    let dateFilter: any = {};
     if (startDate && endDate) {
         dateFilter = {
             createdAt: {
-                gte: new Date(startDate),
-                lte: new Date(endDate),
+                gte: new Date(`${startDate}T00:00:00.000+05:30`),
+                lte: new Date(`${endDate}T23:59:59.999+05:30`),
+            },
+        };
+    } else {
+        // Default to Today in IST
+        const now = new Date();
+        const istTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+        const todayStr = istTime.toISOString().split('T')[0];
+
+        dateFilter = {
+            createdAt: {
+                gte: new Date(`${todayStr}T00:00:00.000+05:30`),
+                lte: new Date(`${todayStr}T23:59:59.999+05:30`),
             },
         };
     }
